@@ -7,13 +7,37 @@ export const usePracticeStore = defineStore("PracticeStore", {
     user: null as User | null,
     isLoading: false as boolean,
     error: null,
+    data: []
   }),
   actions: {
+    async getPractices(): Promise<void>{
+      this.isLoading = true;
+      try {
+        const response = await axios.get("/practices");
+        this.isLoading = false;
+        this.error = null;
+        this.data = response.data;
+      } catch (error: any) {
+        this.isLoading = false;
+        this.error = error;
+      }
+    },
     async createPractice(practice: Practice): Promise<void> {
       const { title, description } = practice;
       this.isLoading = true;
       try {
         const response = await axios.post("/practices", { title, description });
+        this.isLoading = false;
+        this.error = null;
+      } catch (error: any) {
+        this.isLoading = false;
+        this.error = error;
+      }
+    },
+    async saveList(practices: Practice[]){
+      this.isLoading = true;
+      try {
+        await axios.post("/practices/saveList", practices);
         this.isLoading = false;
         this.error = null;
       } catch (error: any) {

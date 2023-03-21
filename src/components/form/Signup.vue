@@ -66,7 +66,6 @@
   const email = ref(null);
   const password = ref(null);
   const signupForm = ref<VForm | null>(null);
-  const loading = ref(false);
   const firstName = ref<string>('');
   const lastName = ref<string>('');
   const firstNameRules = ref([

@@ -35,6 +35,7 @@ const sideBarNav = computed(() => {
     { title: "Sign in", icon: "mdi-login", route: "/signin" },
     { title: "Sign up", icon: "mdi-account-plus", route: "/signup" },
     { title: "Create Practice", icon:"mdi-pencil-box-outline", route: "/listpractice" },
+    { title: "Add Question", icon:"mdi-help", route: "/addquestion" },
   ];
   if (authStore.user) {
     navBar = [

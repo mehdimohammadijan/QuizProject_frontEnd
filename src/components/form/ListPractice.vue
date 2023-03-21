@@ -3,12 +3,12 @@
     <v-data-table
       :headers="headers"
       :items="desserts"
-      :sort-by="[{ key: 'calories', order: 'asc' }]"
+      :sort-by="[{ key: 'title', order: 'asc' }]"
       class="elevation-1"
     >
       <template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>My CRUD</v-toolbar-title>
+          <v-toolbar-title>List of Practices</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-dialog v-model="dialog" max-width="500px">
@@ -27,17 +27,17 @@
                   <v-row>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
-                        v-model="editedItem.name"
-                        label="Dessert name"
+                        v-model="editedItem.title"
+                        label="Title"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
-                        v-model="editedItem.calories"
-                        label="Calories"
+                        v-model="editedItem.description"
+                        label="Description"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="4">
+                    <!-- <v-col cols="12" sm="6" md="4">
                       <v-text-field
                         v-model="editedItem.fat"
                         label="Fat (g)"
@@ -54,7 +54,7 @@
                         v-model="editedItem.protein"
                         label="Protein (g)"
                       ></v-text-field>
-                    </v-col>
+                    </v-col> -->
                   </v-row>
                 </v-container>
               </v-card-text>
@@ -102,163 +102,147 @@
         <v-btn color="primary" @click="initialize"> Reset </v-btn>
       </template>
     </v-data-table>
+    <v-col class="text-right" v-if="showCancelSave">
+      <v-btn color="blue-darken-1 mr-2" @click="cancelSave">Cancel</v-btn>
+      <v-btn color="blue-darken-1" @click="saveList">Save</v-btn>
+    </v-col>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from "vue";
-import { VDataTable } from 'vuetify/labs/VDataTable'
+import { VDataTable } from "vuetify/labs/VDataTable";
+import { usePracticeStore } from "../../stores/Practice";
+import { FullDetailPractice, Practice } from "../../types/Practice";
 const dialog = ref(false);
 const dialogDelete = ref(false);
 const headers = ref([
   {
-    title: "Dessert (100g serving)",
+    title: "Practice Title",
     align: "start",
     sortable: false,
-    key: "name",
+    key: "title",
   },
-  { title: "Calories", key: "calories" },
-  { title: "Fat (g)", key: "fat" },
-  { title: "Carbs (g)", key: "carbs" },
-  { title: "Protein (g)", key: "protein" },
+  { title: "Description", key: "description" },
   { title: "Actions", key: "actions", sortable: false },
 ]);
-const desserts = ref([]);
+const finalPractices = ref<FullDetailPractice[]>([]);
+const desserts = ref<FullDetailPractice[]>([]);
 const editedIndex = ref(-1);
-const editedItem = ref({
-  name: "",
-  calories: 0,
-  fat: 0,
-  carbs: 0,
-  protein: 0,
+const editedItem = ref<FullDetailPractice>({
+  opt: "",
+  id: "",
+  title: "",
+  description: "",
 });
-const defaultItem = ref({
-  name: "",
-  calories: 0,
-  fat: 0,
-  carbs: 0,
-  protein: 0,
+const defaultItem = ref<FullDetailPractice>({
+  opt: "",
+  id: "",
+  title: "",
+  description: "",
 });
 const formTitle = computed(() => {
   return editedIndex.value === -1 ? "New Item" : "Edit Item";
 });
 watch(
   [() => dialog.value, () => dialogDelete.value],
-  ([newDialog, newDialogDelete], [oldDialog, oldDialogDelete]) => {}
+  ([newDialog, newDialogDelete], [oldDialog, oldDialogDelete]) => {
+    // newDialog || close();
+    // newDialogDelete || closeDelete();
+  }
 );
+const usePracStore = usePracticeStore();
 onMounted(() => {
-  initialize();
+  fillTable();
 });
-const initialize = () => {
-    desserts.value = [
-    {
-      name: "Frozen Yogurt",
-      calories: 159,
-      fat: 6.0,
-      carbs: 24,
-      protein: 4.0,
-    },
-    {
-      name: "Ice cream sandwich",
-      calories: 237,
-      fat: 9.0,
-      carbs: 37,
-      protein: 4.3,
-    },
-    {
-      name: "Eclair",
-      calories: 262,
-      fat: 16.0,
-      carbs: 23,
-      protein: 6.0,
-    },
-    {
-      name: "Cupcake",
-      calories: 305,
-      fat: 3.7,
-      carbs: 67,
-      protein: 4.3,
-    },
-    {
-      name: "Gingerbread",
-      calories: 356,
-      fat: 16.0,
-      carbs: 49,
-      protein: 3.9,
-    },
-    {
-      name: "Jelly bean",
-      calories: 375,
-      fat: 0.0,
-      carbs: 94,
-      protein: 0.0,
-    },
-    {
-      name: "Lollipop",
-      calories: 392,
-      fat: 0.2,
-      carbs: 98,
-      protein: 0,
-    },
-    {
-      name: "Honeycomb",
-      calories: 408,
-      fat: 3.2,
-      carbs: 87,
-      protein: 6.5,
-    },
-    {
-      name: "Donut",
-      calories: 452,
-      fat: 25.0,
-      carbs: 51,
-      protein: 4.9,
-    },
-    {
-      name: "KitKat",
-      calories: 518,
-      fat: 26.0,
-      carbs: 65,
-      protein: 7,
-    },
-  ];
+const fillTable = async () => {
+  await usePracStore.getPractices();
+  initialize();
 }
+const showCancelSave = ref(false);
+const cancelSave = () => {
+  showCancelSave.value = false;
+  initialize();
+  finalPractices.value = [];
+};
+const saveList = async () => {
+  if (finalPractices.value.length > 0) {
+    const res = await usePracStore.saveList(finalPractices.value);
+    console.log(res)
+    if (!usePracStore.error) {
+      showCancelSave.value = false;
+      finalPractices.value = [];
+    }
+  }
+};
+
+const initialize = () => {
+  desserts.value = usePracStore.data.map((practice: FullDetailPractice) => {
+    return {
+      opt: "",
+      id: practice.id,
+      title: practice.title,
+      description: practice.description,
+    };
+  });
+};
 const editItem = (item: any) => {
-        editedIndex.value = desserts.value.indexOf(item)
-        editedItem.value = Object.assign({}, item)
-        dialog.value = true
-      }
-      const deleteItem =  (item: any) => {
-        editedIndex.value = desserts.value.indexOf(item)
-        editedItem.value = Object.assign({}, item)
-        dialogDelete.value = true
-      }
-      const deleteItemConfirm = () => {
-        desserts.value.splice(editedIndex.value, 1)
-        closeDelete()
-      }
-     const close = () => {
-        dialog.value = false
-        nextTick(() => {
-          editedItem.value = Object.assign({}, defaultItem.value)
-          editedIndex.value = -1
-        })
-      }
-      const closeDelete = () => {
-        dialogDelete.value = false
-        nextTick(() => {
-          editedItem.value = Object.assign({}, defaultItem.value)
-          editedIndex.value = -1
-        })
-      }
-      const save = () => {
-        if (editedIndex.value > -1) {
-          Object.assign(desserts.value[editedIndex.value], editedItem.value)
-        } else {
-          desserts.value.push(editedItem.value)
-        }
-        close()
-      }
+  editedIndex.value = desserts.value.indexOf(item);
+  editedItem.value = Object.assign({}, item);
+  dialog.value = true;
+};
+const deleteItem = (item: any) => {
+  editedIndex.value = desserts.value.indexOf(item);
+  editedItem.value = Object.assign({}, item);
+  dialogDelete.value = true;
+};
+const deleteItemConfirm = () => {
+  finalPractices.value.push({
+    opt: "delete",
+    id: desserts.value[editedIndex.value].id,
+    title: desserts.value[editedIndex.value].title,
+    description: desserts.value[editedIndex.value].description,
+  });
+  desserts.value.splice(editedIndex.value, 1);
+  showCancelSave.value = true;
+  closeDelete();
+};
+const close = () => {
+  dialog.value = false;
+  nextTick(() => {
+    editedItem.value = Object.assign({}, defaultItem.value);
+    editedIndex.value = -1;
+  });
+};
+const closeDelete = () => {
+  dialogDelete.value = false;
+  nextTick(() => {
+    editedItem.value = Object.assign({}, defaultItem.value);
+    editedIndex.value = -1;
+  });
+};
+
+const save = () => {
+  if (editedIndex.value > -1) {
+    Object.assign(desserts.value[editedIndex.value], editedItem.value);
+    finalPractices.value.push({
+      opt: "edit",
+      id: editedItem.value.id,
+      title: editedItem.value.title,
+      description: editedItem.value.description,
+    });
+  } else {
+    desserts.value.push(editedItem.value);
+    finalPractices.value.push({
+      opt: "new",
+      id: editedItem.value.id,
+      title: editedItem.value.title,
+      description: editedItem.value.description,
+    });
+  }
+  showCancelSave.value = true;
+  close();
+};
 </script>
 
 <style scoped></style>

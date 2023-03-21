@@ -20,6 +20,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Account',
     component: () => import('../views/Account.vue'),
   },
+  {
+    path: '/addquestion',
+    name: 'Question',
+    component: () => import('../components/form/Question.vue'),
+  },
   
   {
     path: '/listpractice',
