@@ -12,11 +12,12 @@
 
     <v-list nav density="compact">
       <v-list-item
-        v-for="item in sideBarNav"
+        v-for="(item, index) in sideBarNav"
         :title="item.title"
         :prepend-icon="item.icon"
         :to="item.route"
-        :key="item.title"
+        :key="index"
+        @click="item.title === 'Sign out' ? authStore.signOut() : ''"
         exact
       />
     </v-list>
@@ -28,20 +29,21 @@ import { computed } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import avatarImage from "@/assets/profile.jpg";
 
+
 const authStore = useAuthStore();
 
 const sideBarNav = computed(() => {
   let navBar = [
     { title: "Sign in", icon: "mdi-login", route: "/signin" },
     { title: "Sign up", icon: "mdi-account-plus", route: "/signup" },
-    { title: "Create Practice", icon:"mdi-pencil-box-outline", route: "/listpractice" },
-    { title: "Add Question", icon:"mdi-help", route: "/addquestion" },
-  ];
+  ]
   if (authStore.user) {
     navBar = [
       { title: "Account", icon: "mdi-home", route: "/account" },
-      { title: "Sign out", icon: "mdi-logout", route: "/signout" },
-    ];
+      { title: "Sign out", icon: "mdi-logout", route: "/signin"},
+      { title: "Create Practice", icon:"mdi-pencil-box-outline", route: "/listpractice" },
+      { title: "Add Question", icon:"mdi-help", route: "/addquestion" },
+    ]
   }
   return navBar;
 });

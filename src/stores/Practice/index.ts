@@ -1,19 +1,19 @@
 import { inject } from "vue";
 import { defineStore } from "pinia";
 import axios from "../../plugins/axios";
-import Practice from "../../types/Practice";
+import { Practice, RecievedQuiz } from "../../types/Practice";
 export const usePracticeStore = defineStore("PracticeStore", {
   state: () => ({
     user: null as User | null,
     isLoading: false as boolean,
     error: null,
-    data: []
+    data: [] as RecievedQuiz[]
   }),
   actions: {
     async getPractices(): Promise<void>{
       this.isLoading = true;
       try {
-        const response = await axios.get("/practices");
+        const response = await axios.get<RecievedQuiz[]>("/practices");
         this.isLoading = false;
         this.error = null;
         this.data = response.data;

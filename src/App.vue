@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Navbar from './components/UI/Navbar.vue';
+import { usePracticeStore } from './stores/Practice';
 
 const drawer = ref(true)
+const usePracStore = usePracticeStore();
+onMounted(async () => {
+  await usePracStore.getPractices();
+});
 </script>
 
 <template>

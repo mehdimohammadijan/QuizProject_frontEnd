@@ -113,7 +113,7 @@
 import { ref, computed, watch, onMounted, nextTick } from "vue";
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { usePracticeStore } from "../../stores/Practice";
-import { FullDetailPractice, Practice } from "../../types/Practice";
+import { FullDetailPractice, Practice, RecievedQuiz } from "../../types/Practice";
 const dialog = ref(false);
 const dialogDelete = ref(false);
 const headers = ref([
@@ -177,7 +177,7 @@ const saveList = async () => {
 };
 
 const initialize = () => {
-  desserts.value = usePracStore.data.map((practice: FullDetailPractice) => {
+  desserts.value = usePracStore.data.map((practice: RecievedQuiz) => {
     return {
       opt: "",
       id: practice.id,

@@ -2,11 +2,12 @@ import { inject } from "vue";
 import { defineStore } from "pinia";
 import axios from "../../plugins/axios"
 import { User } from "../../types/User";
+import Cookies from 'js-cookie'
 export const useAuthStore = defineStore("authStore", {
   state: () => ({
-    user: null as User | null,
+    user: Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null as User | null,
     isLoading: false as boolean,
-    error: null
+    error: null,
   }),
   actions: {
     async signUp(user: User): Promise<void> {
@@ -21,10 +22,13 @@ export const useAuthStore = defineStore("authStore", {
       })
      
     },
-    async signIn(email: string!, password: string!): Promise<void> {
+    async signIn(email: string, password: string): Promise<void> {
      this.isLoading = true;
       await axios.post("/auth/signin", { email, password }).then((response: any) => {
-        this.user = { firstName: response.data.firstName}
+        console.log(response)
+        this.user = response.data.user;
+        Cookies.set('token', response.data.accessToken, { expires: 1 });
+        Cookies.set('user', JSON.stringify(this.user));
         this.isLoading = false;
       }).catch((error: any) => {
         this.isLoading = false;
@@ -32,5 +36,10 @@ export const useAuthStore = defineStore("authStore", {
       });
     
     },
+    signOut(): void{
+      Cookies.remove('token');
+      Cookies.remove('user');
+      this.user = null;
+    }
   },
 });

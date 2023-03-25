@@ -9,3 +9,13 @@ export interface FullDetailPractice {
     description: string;
 
 }
+export interface SelectedQuiz {
+    id: string;
+    title: string;
+}
+export interface RecievedQuiz {
+    id: string;
+    title: string;
+    description: string;
+    createAt: Date;
+}

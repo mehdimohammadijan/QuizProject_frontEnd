@@ -28,12 +28,55 @@
                 density="compact"
                 label="Type"
                 :items="['Column', 'Front', 'Row']"
-                v-model="selectedType"
+                v-model="questionType"
+              ></v-autocomplete>
+            </v-col>
+            <v-col>
+              <v-autocomplete
+                class="px-2 mx-2 mt-1"
+                density="compact"
+                label="Quiz"
+                :items="practiceStore.data.map((practice: RecievedQuiz) => ({id: practice.id, title: practice.title}))"
+                item-title="title"
+                item-value="id"
+                v-model="selectedQuiz"
+                return-object
               ></v-autocomplete>
             </v-col>
           </v-row>
-         
-          <v-row v-if="selectedType === 'Front'">
+          <v-row v-if="questionType === 'Column'">
+            <v-col>
+              <v-btn @click="addToColumnList">add</v-btn>
+              <draggable
+                tag="ul"
+                :list="columnList"
+                class="list-group"
+                handle=".handle"
+                item-key="id"
+              >
+                <template #item="{ element, index }">
+                  <li class="list-group-item">
+                    <div class="row">
+                      <div class="col-1 d-flex align-items-center">
+                        <v-icon icon="mdi-format-align-justify" class="handle"  />
+                      </div>
+                      <div class="col-10">
+                        <input
+                      type="text"
+                      class="form-control"
+                      v-model="element.text"
+                    />
+                      </div>
+                      <div class="col-1 d-flex align-items-center">
+                        <v-icon icon="mdi-close" class="close" @click="removeFromColumnList(index)" />
+                      </div>
+                    </div>
+                  </li>
+                </template>
+              </draggable>
+            </v-col>
+          </v-row>
+          <v-row v-if="questionType === 'Front'">
             <v-col>
               <v-btn @click="addLeft">add</v-btn>
               <draggable
@@ -95,6 +138,38 @@
               </draggable>
             </v-col>
           </v-row>
+          <v-row v-if="questionType === 'Row'">
+            <v-col>
+              <v-btn @click="addToRowList">add</v-btn>
+              <draggable
+                tag="div"
+                :list="rowList"
+                class="list"
+                handle=".handle"
+                item-key="id"
+              >
+                <template #item="{ element, index }">
+                  <div class="item">
+                        <div class="row">
+                          <div class="col-1 d-flex align-items-center">
+                            <v-icon icon="mdi-format-align-justify" class="handle"  />
+                          </div>
+                          <div class="col-10">
+                            <input
+                          type="text"
+                          class="form-control"
+                          v-model="element.text"
+                        />
+                          </div>
+                          <div class="col-1 d-flex align-items-center">
+                            <v-icon icon="mdi-close" class="close" @click="removeFromRowList(index)" />
+                          </div>
+                        </div>
+                      </div>
+                </template>
+              </draggable>
+            </v-col>
+          </v-row>
           <v-card-actions class="justify-center">
             <v-btn color="indigo" variant="flat" type="submit"
               ><span class="px-6">Create</span></v-btn
@@ -107,17 +182,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import draggable from "vuedraggable";
 import { OptionList } from "../../types/Question";
+import { usePracticeStore } from "../../stores/Practice";
+import { SelectedQuiz, RecievedQuiz } from '../../types/Practice';
 const questionText = ref<string>("");
-const selectedType = ref<string>("");
-const front_left = ref<string>("");
-const front_right = ref<string>("");
+const questionType = ref<string>("");
 const leftList = ref<OptionList[]>([]);
 const rightList = ref<OptionList[]>([]);
-const dragging = ref<boolean>(false);
+const columnList = ref<OptionList[]>([]);
+const rowList = ref<OptionList[]>([]);
 const optionId = ref<number>(0);
+const selectedQuiz = ref<SelectedQuiz>();
+  const people: SelectedQuiz[]= [];
 const questionTextRules = ref([
   (value: string) => {
     if (value) return true;
@@ -125,20 +203,10 @@ const questionTextRules = ref([
     return "Question is required.";
   },
 ]);
-const front_leftRules = ref([
-  (value: string) => {
-    if (value) return true;
-
-    return "Left option is required.";
-  },
-]);
-const front_rightRules = ref([
-  (value: string) => {
-    if (value) return true;
-
-    return "Right option is required.";
-  },
-]);
+const practiceStore = usePracticeStore();
+onMounted(async () => {
+  await practiceStore.getPractices();
+});
 const submitFormHandler = async () => {};
 const removeAtRight = (idx: number) => {
   rightList.value.splice(idx, 1);
@@ -146,12 +214,24 @@ const removeAtRight = (idx: number) => {
 const removeAtLeft = (idx: number) => {
   leftList.value.splice(idx, 1);
 };
+const removeFromColumnList = (idx: number) => {
+  columnList.value.splice(idx, 1);
+}
+const removeFromRowList = (idx: number) => {
+  rowList.value.splice(idx, 1);
+}
 const addRight = () => {
   rightList.value.push({id: optionId.value, text:""});
 };
 const addLeft = () => {
   leftList.value.push({id: optionId.value, text:""});
 };
+const addToColumnList = () => {
+  columnList.value.push({id: optionId.value, text:""});
+};
+const addToRowList = () => {
+  rowList.value.push({id: optionId.value, text:""});
+}
 </script>
 
 <style>
@@ -167,6 +247,7 @@ const addLeft = () => {
   margin-bottom: 0;
   border-radius: 0.25rem;
 }
+
 .list-group-item {
   position: relative;
   display: block;
@@ -174,6 +255,7 @@ const addLeft = () => {
   background-color: #fff;
   border: 1px solid rgba(0,0,0,.125);
 }
+
 .list-group-item:first-child {
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
@@ -200,5 +282,18 @@ input {
 }
 .text {
   margin: 20px;
+}
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.item {
+  padding: 0.75rem 1.25rem;
+  background-color: #fff;
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: 5px;
+  cursor: move;
+  margin: 0 10px;
 }
 </style>

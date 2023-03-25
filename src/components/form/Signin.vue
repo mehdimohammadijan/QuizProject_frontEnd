@@ -30,7 +30,7 @@
             Don't have an account,
             <router-link to="/signup">Sign Up</router-link>.
           </p>
-          <v-switch label="Remember me" color="indigo" />
+          <!-- <v-switch label="Remember me" color="indigo" /> -->
           <v-card-actions class="justify-center">
             <v-btn color="indigo" variant="flat" type="submit" :loading="authStore.isLoading" 
               ><span class="px-6">Login</span></v-btn
