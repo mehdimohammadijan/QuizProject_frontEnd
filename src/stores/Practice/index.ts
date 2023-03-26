@@ -2,6 +2,7 @@ import { inject } from "vue";
 import { defineStore } from "pinia";
 import axios from "../../plugins/axios";
 import { Practice, RecievedQuiz } from "../../types/Practice";
+import { User } from "../../types/User"
 export const usePracticeStore = defineStore("PracticeStore", {
   state: () => ({
     user: null as User | null,

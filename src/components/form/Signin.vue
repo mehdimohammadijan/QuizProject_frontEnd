@@ -5,7 +5,11 @@
         <v-toolbar-title>Sign in</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
-        <v-form class="ml--5" @submit.prevent="submitFormHandler" ref="signinForm">
+        <v-form
+          class="ml--5"
+          @submit.prevent="submitFormHandler"
+          ref="signinForm"
+        >
           <v-text-field
             variant="underlined"
             prepend-inner-icon="mdi-email"
@@ -32,7 +36,11 @@
           </p>
           <!-- <v-switch label="Remember me" color="indigo" /> -->
           <v-card-actions class="justify-center">
-            <v-btn color="indigo" variant="flat" type="submit" :loading="authStore.isLoading" 
+            <v-btn
+              color="indigo"
+              variant="flat"
+              type="submit"
+              :loading="authStore.isLoading"
               ><span class="px-6">Login</span></v-btn
             >
           </v-card-actions>
@@ -44,13 +52,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { VForm } from 'vuetify/lib/components/VForm/VForm';
+import { VForm } from "vuetify/lib/components/VForm/index";
 import { useAuthStore } from "../../stores/auth";
 import { useRouter } from "vue-router";
 const router = useRouter();
 const showPassword = ref(false);
-const email = ref('');
-const password = ref('');
+const email = ref("");
+const password = ref("");
 const signinForm = ref<VForm | null>(null);
 const emailRules = ref([
   (value: string) => {
@@ -78,16 +86,16 @@ const passwordRules = ref([
 ]);
 const authStore = useAuthStore();
 const submitFormHandler = async () => {
-   const isValid = await signinForm.value?.validate()
-   if(isValid.valid){
-      await authStore.signIn(email.value , password.value );
-      if(!authStore.error){
+  const isValid = await signinForm.value?.validate();
+  if (isValid !== undefined) {
+    if (isValid.valid) {
+      await authStore.signIn(email.value, password.value);
+      if (!authStore.error) {
         router.push("/account");
       }
-   }
-  
+    }
+  }
 };
-
 </script>
 
 <style scoped></style>

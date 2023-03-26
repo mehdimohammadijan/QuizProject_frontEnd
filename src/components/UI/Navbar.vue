@@ -40,9 +40,9 @@ const sideBarNav = computed(() => {
   if (authStore.user) {
     navBar = [
       { title: "Account", icon: "mdi-home", route: "/account" },
-      { title: "Sign out", icon: "mdi-logout", route: "/signin"},
       { title: "Create Practice", icon:"mdi-pencil-box-outline", route: "/listpractice" },
       { title: "Add Question", icon:"mdi-help", route: "/addquestion" },
+      { title: "Sign out", icon: "mdi-logout", route: "/signin"}
     ]
   }
   return navBar;

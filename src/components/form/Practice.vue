@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { VForm } from "vuetify/lib/components/VForm/VForm";
+import { VForm } from "vuetify/lib/components/VForm/index";
 import { usePracticeStore } from "../../stores/Practice";
 const title = ref("");
 const description = ref("");
@@ -75,6 +75,7 @@ const snackbar = ref({
 const practiceStore = usePracticeStore();
 const submitFormHandler = async () => {
   const isValid = await createPracticeForm.value?.validate();
+  if (isValid !== undefined) {
   if (isValid.valid) {
     const practice = {title: title.value, description: description.value};
     await practiceStore.createPractice(practice);
@@ -90,6 +91,7 @@ const submitFormHandler = async () => {
       snackbar.value.show = true
       }
   }
+}
 };
 </script>
 

@@ -111,12 +111,14 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from "vue";
-import { VDataTable } from "vuetify/labs/VDataTable";
+import { VDataTable } from "vuetify/lib/labs/components";
 import { usePracticeStore } from "../../stores/Practice";
-import { FullDetailPractice, Practice, RecievedQuiz } from "../../types/Practice";
+import DataTableHeader from "../../types/DataTableHeader";
+import { FullDetailPractice, RecievedQuiz } from "../../types/Practice";
 const dialog = ref(false);
 const dialogDelete = ref(false);
-const headers = ref([
+
+const headers : DataTableHeader[] = [
   {
     title: "Practice Title",
     align: "start",
@@ -125,7 +127,7 @@ const headers = ref([
   },
   { title: "Description", key: "description" },
   { title: "Actions", key: "actions", sortable: false },
-]);
+];
 const finalPractices = ref<FullDetailPractice[]>([]);
 const desserts = ref<FullDetailPractice[]>([]);
 const editedIndex = ref(-1);

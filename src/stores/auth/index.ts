@@ -5,10 +5,13 @@ import { User } from "../../types/User";
 import Cookies from 'js-cookie'
 export const useAuthStore = defineStore("authStore", {
   state: () => ({
-    user: Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null as User | null,
+    user: Cookies.get('user') ? JSON.parse(Cookies.get('user') as string) : null as User | null,
     isLoading: false as boolean,
     error: null,
   }),
+  getters: {
+    isAuthenticated: (state) => !!state.user,
+  },
   actions: {
     async signUp(user: User): Promise<void> {
       const { firstName, lastName, email, password } = user;
@@ -40,6 +43,6 @@ export const useAuthStore = defineStore("authStore", {
       Cookies.remove('token');
       Cookies.remove('user');
       this.user = null;
-    }
+    },
   },
 });

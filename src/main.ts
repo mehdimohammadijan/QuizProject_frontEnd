@@ -13,13 +13,13 @@ import api from "./plugins/axios";
 
 
 
+
 const vuetify = createVuetify({
   components,
   directives,
 })
 
 const app = createApp(App).use(router).use(vuetify).use(createPinia())
-
 
 app.provide('api', api)
 app.mount('#app')
