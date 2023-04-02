@@ -42,6 +42,9 @@ export const useAuthStore = defineStore("authStore", {
         Cookies.set('token', response.data.accessToken, { expires: 1 });
         Cookies.set('user', JSON.stringify(this.user));
         this.isLoading = false;
+        sharedState.snackbar.value.message=`You are successfully signed in ${this.user.firstName}.`;
+        sharedState.snackbar.value.color="success";
+        sharedState.snackbar.value.active = true;
       }).catch((error: any) => {
         this.isLoading = false;
         this.error = error;

@@ -25,7 +25,7 @@ onMounted(async () => {
 
     <v-snackbar
       v-model="sharedState.snackbar.value.active"
-      :timeout="2000"
+      :timeout="4000"
       :color="sharedState.snackbar.value.color"
     >
       {{ sharedState.snackbar.value.message }}
