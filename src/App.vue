@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 import Navbar from './components/UI/Navbar.vue';
 import { usePracticeStore } from './stores/Practice';
+import { sharedState } from './stores/shared/SharedState';
 
 const drawer = ref(true)
 const usePracStore = usePracticeStore();
@@ -19,8 +20,26 @@ onMounted(async () => {
     </div>
     <VMain>
      <router-view />
+     
     </VMain>
- 
+
+    <v-snackbar
+      v-model="sharedState.snackbar.value.active"
+      :timeout="2000"
+      :color="sharedState.snackbar.value.color"
+    >
+      {{ sharedState.snackbar.value.message }}
+
+      <template v-slot:actions>
+        <v-btn
+          color="white"
+          variant="text"
+          @click="sharedState.snackbar.value.active = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </VApp>
  
 </div>

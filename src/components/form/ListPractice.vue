@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { VDataTable } from "vuetify/lib/labs/components";
 import { usePracticeStore } from "../../stores/Practice";
 import DataTableHeader from "../../types/DataTableHeader";
@@ -146,13 +146,7 @@ const defaultItem = ref<FullDetailPractice>({
 const formTitle = computed(() => {
   return editedIndex.value === -1 ? "New Item" : "Edit Item";
 });
-watch(
-  [() => dialog.value, () => dialogDelete.value],
-  ([newDialog, newDialogDelete], [oldDialog, oldDialogDelete]) => {
-    // newDialog || close();
-    // newDialogDelete || closeDelete();
-  }
-);
+
 const usePracStore = usePracticeStore();
 onMounted(() => {
   fillTable();
@@ -170,11 +164,10 @@ const cancelSave = () => {
 const saveList = async () => {
   if (finalPractices.value.length > 0) {
     const res = await usePracStore.saveList(finalPractices.value);
-    console.log(res)
-    if (!usePracStore.error) {
-      showCancelSave.value = false;
       finalPractices.value = [];
-    }
+      
+    showCancelSave.value = false;
+    fillTable();
   }
 };
 

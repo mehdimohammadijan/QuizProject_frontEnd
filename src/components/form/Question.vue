@@ -8,7 +8,7 @@
         <v-form
           class="ml--5"
           @submit.prevent="submitFormHandler"
-          ref="signupForm"
+          ref="questionForm"
         >
           <v-row no-gutters>
             <v-col cols="9">
@@ -20,6 +20,7 @@
                 placeholder="Question"
                 :rules="questionTextRules"
                 v-model="questionText"
+                clearable
               />
             </v-col>
             <v-col>
@@ -58,17 +59,24 @@
                   <li class="list-group-item">
                     <div class="row">
                       <div class="col-1 d-flex align-items-center">
-                        <v-icon icon="mdi-format-align-justify" class="handle"  />
+                        <v-icon
+                          icon="mdi-format-align-justify"
+                          class="handle"
+                        />
                       </div>
                       <div class="col-10">
                         <input
-                      type="text"
-                      class="form-control"
-                      v-model="element.text"
-                    />
+                          type="text"
+                          class="form-control"
+                          v-model="element.text"
+                        />
                       </div>
                       <div class="col-1 d-flex align-items-center">
-                        <v-icon icon="mdi-close" class="close" @click="removeFromColumnList(index)" />
+                        <v-icon
+                          icon="mdi-close"
+                          class="close"
+                          @click="removeFromColumnList(index)"
+                        />
                       </div>
                     </div>
                   </li>
@@ -90,17 +98,24 @@
                   <li class="list-group-item">
                     <div class="row">
                       <div class="col-1 d-flex align-items-center">
-                        <v-icon icon="mdi-format-align-justify" class="handle"  />
+                        <v-icon
+                          icon="mdi-format-align-justify"
+                          class="handle"
+                        />
                       </div>
                       <div class="col-10">
                         <input
-                      type="text"
-                      class="form-control"
-                      v-model="element.text"
-                    />
+                          type="text"
+                          class="form-control"
+                          v-model="element.text"
+                        />
                       </div>
                       <div class="col-1 d-flex align-items-center">
-                        <v-icon icon="mdi-close" class="close" @click="removeAtLeft(index)" />
+                        <v-icon
+                          icon="mdi-close"
+                          class="close"
+                          @click="removeAtLeft(index)"
+                        />
                       </div>
                     </div>
                   </li>
@@ -120,17 +135,24 @@
                   <li class="list-group-item">
                     <div class="row">
                       <div class="col-1 d-flex align-items-center">
-                        <v-icon icon="mdi-format-align-justify" class="handle"  />
+                        <v-icon
+                          icon="mdi-format-align-justify"
+                          class="handle"
+                        />
                       </div>
                       <div class="col-10">
                         <input
-                      type="text"
-                      class="form-control"
-                      v-model="element.text"
-                    />
+                          type="text"
+                          class="form-control"
+                          v-model="element.text"
+                        />
                       </div>
                       <div class="col-1 d-flex align-items-center">
-                        <v-icon icon="mdi-close" class="close" @click="removeAtRight(index)" />
+                        <v-icon
+                          icon="mdi-close"
+                          class="close"
+                          @click="removeAtRight(index)"
+                        />
                       </div>
                     </div>
                   </li>
@@ -150,28 +172,39 @@
               >
                 <template #item="{ element, index }">
                   <div class="item">
-                        <div class="row">
-                          <div class="col-1 d-flex align-items-center">
-                            <v-icon icon="mdi-format-align-justify" class="handle"  />
-                          </div>
-                          <div class="col-10">
-                            <input
+                    <div class="row">
+                      <div class="col-1 d-flex align-items-center">
+                        <v-icon
+                          icon="mdi-format-align-justify"
+                          class="handle"
+                        />
+                      </div>
+                      <div class="col-10">
+                        <input
                           type="text"
                           class="form-control"
                           v-model="element.text"
                         />
-                          </div>
-                          <div class="col-1 d-flex align-items-center">
-                            <v-icon icon="mdi-close" class="close" @click="removeFromRowList(index)" />
-                          </div>
-                        </div>
                       </div>
+                      <div class="col-1 d-flex align-items-center">
+                        <v-icon
+                          icon="mdi-close"
+                          class="close"
+                          @click="removeFromRowList(index)"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </template>
               </draggable>
             </v-col>
           </v-row>
           <v-card-actions class="justify-center">
-            <v-btn color="indigo" variant="flat" type="submit"
+            <v-btn
+              color="indigo"
+              variant="flat"
+              type="submit"
+              :loading="questionStore.isLoading"
               ><span class="px-6">Create</span></v-btn
             >
           </v-card-actions>
@@ -184,9 +217,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import draggable from "vuedraggable";
-import { OptionList } from "../../types/Question";
+import { OptionList, CreateQuestion } from "../../types/Question";
 import { usePracticeStore } from "../../stores/Practice";
 import { SelectedQuiz, RecievedQuiz } from '../../types/Practice';
+import { VForm } from "vuetify/lib/components/VForm/index";
+import { useQuestionStore } from "../../stores/question";
 const questionText = ref<string>("");
 const questionType = ref<string>("");
 const leftList = ref<OptionList[]>([]);
@@ -195,7 +230,7 @@ const columnList = ref<OptionList[]>([]);
 const rowList = ref<OptionList[]>([]);
 const optionId = ref<number>(0);
 const selectedQuiz = ref<SelectedQuiz>();
-  const people: SelectedQuiz[]= [];
+const questionForm = ref<VForm | null>(null);
 const questionTextRules = ref([
   (value: string) => {
     if (value) return true;
@@ -204,10 +239,65 @@ const questionTextRules = ref([
   },
 ]);
 const practiceStore = usePracticeStore();
+const questionStore = useQuestionStore();
 onMounted(async () => {
   await practiceStore.getPractices();
 });
-const submitFormHandler = async () => {};
+const submitFormHandler = async () => {
+  const isValid = await questionForm.value?.validate();
+  let question: CreateQuestion = {
+    type: '',
+    quiz: '',
+    questionText: '',
+    options: []
+} ;
+  if (isValid !== undefined) {
+    if (isValid.valid) {
+      if(questionType.value === 'Column'){
+        if(columnList.value.length === 0){
+          console.log('Column type question must has a value!');
+          return;
+        }
+        question = {
+        type: questionType.value,
+        quiz: selectedQuiz.value!.id,
+        questionText: questionText.value,
+        options: columnList.value.map(option => option.text)
+      }
+    }
+      else if(questionType.value === 'Row'){
+        if(rowList.value.length === 0){
+          console.log('Row type question must has a value!');
+          return;
+        }
+        question = {
+        type: questionType.value,
+        quiz: selectedQuiz.value!.id,
+        questionText: questionText.value,
+        options: rowList.value.map(option => option.text)
+      }
+      }else if(questionType.value === 'Front') {
+        if(leftList.value.length === 0 || rightList.value.length === 0 || leftList.value.length !== rightList.value.length){
+          console.log('Front type question is invalid!');
+          return;
+        }
+        question = {
+        type: questionType.value,
+        quiz: selectedQuiz.value!.id,
+        questionText: questionText.value,
+        options: {
+          leftOption: leftList.value.map(option => option.text),
+          rightOption: rightList.value.map(option => option.text)
+        }
+      }
+      }
+      await questionStore.createQuestion(question);
+      if (!questionStore.error) {
+        console.log('successfully added');
+      }
+    }
+  }
+};
 const removeAtRight = (idx: number) => {
   rightList.value.splice(idx, 1);
 };
@@ -253,7 +343,7 @@ const addToRowList = () => {
   display: block;
   padding: 0.75rem 1.25rem;
   background-color: #fff;
-  border: 1px solid rgba(0,0,0,.125);
+  border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .list-group-item:first-child {
@@ -291,7 +381,7 @@ input {
 .item {
   padding: 0.75rem 1.25rem;
   background-color: #fff;
-  border: 1px solid rgba(0,0,0,.125);
+  border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 5px;
   cursor: move;
   margin: 0 10px;
