@@ -222,6 +222,9 @@ import { usePracticeStore } from "../../stores/Practice";
 import { SelectedQuiz, RecievedQuiz } from '../../types/Practice';
 import { VForm } from "vuetify/lib/components/VForm/index";
 import { useQuestionStore } from "../../stores/question";
+import type { Header, Item } from "vue3-easy-data-table";
+
+
 const questionText = ref<string>("");
 const questionType = ref<string>("");
 const leftList = ref<OptionList[]>([]);
@@ -231,6 +234,41 @@ const rowList = ref<OptionList[]>([]);
 const optionId = ref<number>(0);
 const selectedQuiz = ref<SelectedQuiz>();
 const questionForm = ref<VForm | null>(null);
+  const practiceStore = usePracticeStore();
+const questionStore = useQuestionStore();
+const headers: Header[] = [
+  { text: 'Text', value: 'text' },
+  { text: 'Type', value: 'type' },
+];
+
+const questions = ref<Item[]>([]);
+onMounted(() => {
+  fillTable();
+});
+const fillTable = async () => {
+  await questionStore.getQuestions();
+  initialize();
+}
+const initialize = () => {
+  questions.value = questionStore.data.map((question: Item) => {
+    return {
+      id: question.id,
+      text: question.questionText,
+      type: question.questionType,
+    };
+  });
+};
+
+const loadQuestion = async (index: number): Promise<void> => {
+  const expandedItem = questions.value[index];
+  if (!expandedItem.questionDetail) {
+    expandedItem.expandLoading = true;
+    await questionStore.getQuestionDetails(expandedItem.id, expandedItem.type);
+    expandedItem.questionDetail = questionStore.questionDetail
+    expandedItem.expandLoading = false;
+  }
+};
+
 const questionTextRules = ref([
   (value: string) => {
     if (value) return true;
@@ -238,8 +276,7 @@ const questionTextRules = ref([
     return "Question is required.";
   },
 ]);
-const practiceStore = usePracticeStore();
-const questionStore = useQuestionStore();
+
 onMounted(async () => {
   await practiceStore.getPractices();
 });

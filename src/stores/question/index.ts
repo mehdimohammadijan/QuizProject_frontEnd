@@ -9,15 +9,44 @@ export const useQuestionStore = defineStore("QuestionStore", {
   state: () => ({
     isLoading: false as boolean,
     error: null,
+    data: [],
+    questionDetail: null
   }),
   actions: {
+
+    async getQuestions() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get("/questions");
+        this.isLoading = false;
+        this.error = null;
+        this.data = response.data;
+        console.log(response.data);
+      } catch (error: any) {
+        this.isLoading = false;
+        this.error = error;
+      }
+    },
+    async getQuestionDetails(id: string, type: string) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/questions/${id}/${type}`);
+        this.isLoading = false;
+        this.error = null;
+        this.questionDetail = response.data;
+        console.log(response.data);
+      } catch (error: any) {
+        this.isLoading = false;
+        this.error = error;
+      }
+    },
 
     async createQuestion(sendQuestion : CreateQuestion): Promise<void> {
       console.log(sendQuestion)
       this.isLoading = true;
       this.error = null;
       try {
-        const response = await axios.post("/Question", sendQuestion);
+        const response = await axios.post("/questions", sendQuestion);
         this.isLoading = false;
         sharedState.snackbar.value.message="Question created successfully.";
         sharedState.snackbar.value.color="success";

@@ -31,6 +31,15 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../components/form/Question.vue'),
     meta : { auth: true}
   },
+
+  {
+    path: '/listquestion',
+    name: 'Question List',
+    component: () => import('../components/form/QuestionList.vue'),
+    meta : { auth: true}
+  },
+
+  
   
   {
     path: '/listpractice',
