@@ -13,15 +13,13 @@ export const useQuestionStore = defineStore("QuestionStore", {
     questionDetail: null
   }),
   actions: {
-
     async getQuestions() {
       this.isLoading = true;
       try {
-        const response = await axios.get("/questions");
+        const response = await axios.get("/questions/list");
         this.isLoading = false;
         this.error = null;
         this.data = response.data;
-        console.log(response.data);
       } catch (error: any) {
         this.isLoading = false;
         this.error = error;
@@ -33,7 +31,7 @@ export const useQuestionStore = defineStore("QuestionStore", {
         const response = await axios.get(`/questions/${id}/${type}`);
         this.isLoading = false;
         this.error = null;
-        this.questionDetail = response.data;
+        this.questionDetail = JSON.parse(response.data);
         console.log(response.data);
       } catch (error: any) {
         this.isLoading = false;

@@ -10,8 +10,6 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import router from './router/index'
 import api from "./plugins/axios";
-import Vue3EasyDataTable from 'vue3-easy-data-table';
-import 'vue3-easy-data-table/dist/style.css';
 
 
 
@@ -21,7 +19,6 @@ const vuetify = createVuetify({
 })
 
 const app = createApp(App).use(router).use(vuetify).use(createPinia())
-app.component('EasyDataTable', Vue3EasyDataTable);
 app.provide('api', api)
 app.mount('#app')
 

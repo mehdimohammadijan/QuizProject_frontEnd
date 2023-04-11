@@ -1,19 +1,43 @@
 <template>
-  <div>
-    <EasyDataTable
-      :headers="headers"
-      :items="questions"
-      :rows-per-page="rows_per_page"
-      @expand-row="loadQuestion"
+  <v-card class="ma-10">
+  <v-toolbar flat>
+    <v-toolbar-title>Question List</v-toolbar-title>
+  </v-toolbar>
+    <v-data-table
+    :headers="headers"
+    :items="questions"
+    v-model:expanded="expandedRows"
+    item-value="name"
+    show-expand
+    class="elevation-1"
+    :search="searchQuestion"
+  >
+  <template v-slot:top>
+    <v-text-field
+      class="mx-5"
+      variant="underlined"
+      v-model="searchQuestion"
+      label="Search"
+      single-line
+      hide-details
+    ></v-text-field>
+  </template>
+  <template v-slot:item.actions="{ item }">
+    <v-icon
+      size="small"
+      @click="deleteQuestion(item.raw.id)"
     >
-      <template #expand="item">
-        <div v-if="item.questionDetail" style="padding: 15px">
-          {{ item.questionDetail }}
+      mdi-delete
+    </v-icon>
+  </template>
+  <template v-slot:expanded-row="{ columns, item }">
+    <tr>
+      <td :colspan="columns.length">
+        <div style="padding: 15px">
           <v-card class="elevation-12 mx-auto mt-10" max-width="900">
             <v-card-text>
               <v-form
                 class="ml--5"
-                @submit.prevent="submitFormHandler"
                 ref="questionForm"
               >
                 <v-row no-gutters>
@@ -24,9 +48,9 @@
                       label="Question"
                       type="text"
                       placeholder="Question"
-                      :rules="questionTextRules"
-                      v-model="item.questionDetail.questionText"
+                      v-model="item.value.questionText"
                       clearable
+                      @input="handleCLick"
                     />
                   </v-col>
                   <v-col>
@@ -35,7 +59,7 @@
                       density="compact"
                       label="Type"
                       :items="['Column', 'Front', 'Row']"
-                      v-model="item.questionDetail.questionType"
+                      v-model="item.value.questionType"
                     ></v-autocomplete>
                   </v-col>
                   <v-col>
@@ -46,17 +70,17 @@
                       :items="practiceStore.data.map((practice: RecievedQuiz) => ({id: practice.id, title: practice.title}))"
                       item-title="title"
                       item-value="id"
-                      v-model="item.questionDetail.selectedQuiz"
+                      v-model="item.value.practice.title"
                       return-object
                     ></v-autocomplete>
                   </v-col>
                 </v-row>
-                <v-row v-if="item.questionDetail.questionType === 'Column'">
+                <v-row v-if="item.value.questionType === 'Column'">
                   <v-col>
-                    <v-btn @click="addToColumnList(index, item.id)">add</v-btn>
+                    <v-btn @click="addToColumnList(item.value.id)">add</v-btn>
                     <draggable
                       tag="ul"
-                      :list="item.questionDetail.columnRowOptions"
+                      :list="item.value.columnRowOptions"
                       class="list-group"
                       handle=".handle"
                       item-key="id"
@@ -81,7 +105,7 @@
                               <v-icon
                                 icon="mdi-close"
                                 class="close"
-                                @click="removeFromColumnList(index, item.id)"
+                                @click="removeFromColumnList(index, item.value.id)"
                               />
                             </div>
                           </div>
@@ -90,18 +114,18 @@
                     </draggable>
                   </v-col>
                 </v-row>
-                <v-row v-if="item.questionDetail.questionType === 'Front'">
+                <v-row v-if="item.value.questionType === 'Front'">
                   <v-col>
                     <v-row>
                       <v-col>
-                        <v-btn @click="addToFrontList(item.id)">add</v-btn>
+                        <v-btn @click="addToFrontList(item.value.id)">add</v-btn>
                       </v-col>
                     </v-row>
                     <v-row>
                       <v-col>
                         <draggable
                           tag="ul"
-                          :list="item.questionDetail.frontOptions.leftOptions"
+                          :list="item.value.frontOptions.leftOptions"
                           class="list-group"
                           handle=".handle"
                           item-key="id"
@@ -130,7 +154,7 @@
                       <v-col>
                         <draggable
                           tag="ul"
-                          :list="item.questionDetail.frontOptions.rightOptions"
+                          :list="item.value.frontOptions.rightOptions"
                           class="list-group"
                           handle=".handle"
                           item-key="id"
@@ -155,7 +179,7 @@
                                   <v-icon
                                     icon="mdi-close"
                                     class="close"
-                                    @click="removeFromFrontList(index, item.id)"
+                                    @click="removeFromFrontList(index, item.value.id)"
                                   />
                                 </div>
                               </div>
@@ -166,13 +190,12 @@
                     </v-row>
                   </v-col>
                 </v-row>
-
-                <v-row v-if="item.questionDetail.questionType === 'Row'">
+                <v-row v-if="item.value.questionType === 'Row'">
                   <v-col>
-                    <v-btn @click="addToRowList(index, item.id)">add</v-btn>
+                    <v-btn @click="addToRowList(item.value.id)">add</v-btn>
                     <draggable
                       tag="div"
-                      :list="item.questionDetail.columnRowOptions"
+                      :list="item.value.columnRowOptions"
                       class="list"
                       handle=".handle"
                       item-key="id"
@@ -197,7 +220,7 @@
                               <v-icon
                                 icon="mdi-close"
                                 class="close"
-                                @click="removeFromRowList(index, item.id)"
+                                @click="removeFromRowList(index, item.value.id)"
                               />
                             </div>
                           </div>
@@ -206,22 +229,15 @@
                     </draggable>
                   </v-col>
                 </v-row>
-                <v-card-actions class="justify-center">
-                  <v-btn
-                    color="indigo"
-                    variant="flat"
-                    type="submit"
-                    :loading="questionStore.isLoading"
-                    ><span class="px-6">Create</span></v-btn
-                  >
-                </v-card-actions>
               </v-form>
             </v-card-text>
           </v-card>
         </div>
-      </template>
-    </EasyDataTable>
-  </div>
+      </td>
+    </tr>
+  </template>
+</v-data-table>
+</v-card>
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
@@ -231,7 +247,7 @@ import { usePracticeStore } from "../../stores/Practice";
 import { SelectedQuiz, RecievedQuiz } from "../../types/Practice";
 import { VForm } from "vuetify/lib/components/VForm/index";
 import { useQuestionStore } from "../../stores/question";
-import type { Header, Item } from "vue3-easy-data-table";
+import { VDataTable } from "vuetify/lib/labs/components";
 
 const questionText = ref<string>("");
 const questionType = ref<string>("");
@@ -244,39 +260,51 @@ const selectedQuiz = ref<SelectedQuiz>();
 const questionForm = ref<VForm | null>(null);
 const practiceStore = usePracticeStore();
 const questionStore = useQuestionStore();
-const rows_per_page = ref<number>(5);
-const headers: Header[] = [
-  { text: "Text", value: "text" },
-  { text: "Type", value: "type" },
+const expandedRows = ref([]);
+const searchQuestion = ref('')
+const headers = [
+  { title: "Text", value: "questionText", key: "questionText" },
+  { title: "Type", value: "questionType", key: "questionType" },
+  { title: 'Actions', key: 'actions', sortable: false },
 ];
 
-const questions = ref<Item[]>([]);
-onMounted(() => {
-  fillTable();
+const questions = ref<any>([]);
+onMounted(async () => {
+  await fillTable();
 });
 const fillTable = async () => {
   await questionStore.getQuestions();
-  initialize();
-};
-const initialize = () => {
-  questions.value = questionStore.data.map((question: Item) => {
-    return {
-      id: question.id,
-      text: question.questionText,
-      type: question.questionType,
-    };
+  await practiceStore.getPractices();
+  questions.value = questionStore.data.map((question: any) => {
+    if (question.questionType === "Front") {
+      return {
+        ...question,
+        frontOptions: {
+          leftOptions: question.frontOptions.map((option: any) => ({
+            id: option.id,
+            optionText: option.optionText,
+          })),
+          rightOptions: question.frontOptions.map((option: any) => ({
+            id: option.id,
+            optionAnswer: option.optionAnswer,
+          })),
+        },
+      };
+    } else {
+      return question;
+    }
   });
 };
 
-const loadQuestion = async (index: number): Promise<void> => {
-  const expandedItem = questions.value[index];
-  if (!expandedItem.questionDetail) {
-    expandedItem.expandLoading = true;
-    await questionStore.getQuestionDetails(expandedItem.id, expandedItem.type);
-    expandedItem.questionDetail = questionStore.questionDetail;
-    expandedItem.expandLoading = false;
-  }
-};
+// const loadQuestion = async (index: number) => {
+//   const expandedItem = questions.value[index];
+//   if (!expandedItem.questionDetail) {
+//     expandedItem.expandLoading = true;
+//     await questionStore.getQuestionDetails(expandedItem.id, expandedItem.type);
+//     expandedItem.questionDetail = questionStore.questionDetail;
+//     expandedItem.expandLoading = false;
+//   }
+// };
 
 const questionTextRules = ref([
   (value: string) => {
@@ -286,113 +314,51 @@ const questionTextRules = ref([
   },
 ]);
 
-onMounted(async () => {
-  await practiceStore.getPractices();
-});
-const submitFormHandler = async () => {
-  const isValid = await questionForm.value?.validate();
-  let question: CreateQuestion = {
-    type: "",
-    quiz: "",
-    questionText: "",
-    options: [],
-  };
-  if (isValid !== undefined) {
-    if (isValid.valid) {
-      if (questionType.value === "Column") {
-        if (columnList.value.length === 0) {
-          console.log("Column type question must has a value!");
-          return;
-        }
-        question = {
-          type: questionType.value,
-          quiz: selectedQuiz.value!.id,
-          questionText: questionText.value,
-          options: columnList.value.map((option) => option.text),
-        };
-      } else if (questionType.value === "Row") {
-        if (rowList.value.length === 0) {
-          console.log("Row type question must has a value!");
-          return;
-        }
-        question = {
-          type: questionType.value,
-          quiz: selectedQuiz.value!.id,
-          questionText: questionText.value,
-          options: rowList.value.map((option) => option.text),
-        };
-      } else if (questionType.value === "Front") {
-        if (
-          leftList.value.length === 0 ||
-          rightList.value.length === 0 ||
-          leftList.value.length !== rightList.value.length
-        ) {
-          console.log("Front type question is invalid!");
-          return;
-        }
-        question = {
-          type: questionType.value,
-          quiz: selectedQuiz.value!.id,
-          questionText: questionText.value,
-          options: {
-            leftOption: leftList.value.map((option) => option.text),
-            rightOption: rightList.value.map((option) => option.text),
-          },
-        };
-      }
-      await questionStore.createQuestion(question);
-      if (!questionStore.error) {
-        console.log("successfully added");
-      }
-    }
-  }
-};
+const deleteQuestion = (qId: string) => {
+  const index = getQuestionIndex(qId)
+  questions.value.splice(index, 1);
+}
+const handleCLick = () => {
+  console.log('hi')
+}
+
+const getQuestionIndex = (qId: string): number => questions.value.findIndex((question: any) => question.id === qId);
 const removeFromFrontList = (idx: number, qId: string) => {
-  const index = questions.value.findIndex((question) => question.id === qId);
-  questions.value[index].questionDetail.frontOptions.leftOptions.splice(idx, 1);
-  questions.value[index].questionDetail.frontOptions.rightOptions.splice(
-    idx,
-    1
-  );
+  const index = getQuestionIndex(qId)
+  questions.value[index].frontOptions.leftOptions.splice(idx, 1);
+  questions.value[index].frontOptions.rightOptions.splice(idx, 1);
 };
 const removeFromColumnList = (idx: number, qId: string) => {
-  const index = questions.value.findIndex((question) => question.id === qId);
-  questions.value[index].questionDetail.columnRowOptions.splice(idx, 1);
+  const index = getQuestionIndex(qId)
+  questions.value[index].columnRowOptions.splice(idx, 1);
 };
 const removeFromRowList = (idx: number, qId: string) => {
-  const index = questions.value.findIndex((question) => question.id === qId);
-  questions.value[index].questionDetail.columnRowOptions.splice(idx, 1);
+  const index = getQuestionIndex(qId)
+  questions.value[index].columnRowOptions.splice(idx, 1);
 };
 const addToFrontList = (qId: string) => {
-  const index = questions.value.findIndex((question) => question.id === qId);
- 
-  
-    questions.value[index].questionDetail.frontOptions.leftOptions.push({
-      id: optionId.value,
-      optionText: "",
-    });
-    questions.value[index].questionDetail.frontOptions.rightOptions.push({
-      id: optionId.value,
-      optionAnswer: "",
-    });
+  const index = getQuestionIndex(qId)
 
-
-  // questions.value[index].questionDetail.frontOptions.push({
-  //   id: optionId.value,
-  //   optionText: "",
-  //   optionAnswer: "",
-  // });
+  questions.value[index].frontOptions.leftOptions.push({
+    id: optionId.value,
+    optionText: "",
+  });
+  questions.value[index].frontOptions.rightOptions.push({
+    id: optionId.value,
+    optionAnswer: "",
+  });
 };
-const addToColumnList = (idx: number, qId: string) => {
-  const index = questions.value.findIndex((question) => question.id === qId);
-  questions.value[index].questionDetail.columnRowOptions.push({
+const addToColumnList = (qId: string) => {
+  const index = getQuestionIndex(qId)
+  console.log(index)
+  questions.value[index].columnRowOptions.push({
     id: optionId.value,
     text: "",
   });
 };
-const addToRowList = (idx: number, qId: string) => {
-  const index = questions.value.findIndex((question) => question.id === qId);
-  questions.value[index].questionDetail.columnRowOptions.push({
+const addToRowList = (qId: string) => {
+  const index = getQuestionIndex(qId)
+  questions.value[index].columnRowOptions.push({
     id: optionId.value,
     text: "",
   });

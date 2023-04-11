@@ -21,6 +21,7 @@
                 :rules="questionTextRules"
                 v-model="questionText"
                 clearable
+                @update:model-value="handleInput"
               />
             </v-col>
             <v-col>
@@ -217,12 +218,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import draggable from "vuedraggable";
-import { OptionList, CreateQuestion } from "../../types/Question";
+import { OptionList, CreateQuestion, DisplayQuestion } from "../../types/Question";
 import { usePracticeStore } from "../../stores/Practice";
 import { SelectedQuiz, RecievedQuiz } from '../../types/Practice';
 import { VForm } from "vuetify/lib/components/VForm/index";
 import { useQuestionStore } from "../../stores/question";
-import type { Header, Item } from "vue3-easy-data-table";
+
 
 
 const questionText = ref<string>("");
@@ -234,14 +235,14 @@ const rowList = ref<OptionList[]>([]);
 const optionId = ref<number>(0);
 const selectedQuiz = ref<SelectedQuiz>();
 const questionForm = ref<VForm | null>(null);
-  const practiceStore = usePracticeStore();
+const practiceStore = usePracticeStore();
 const questionStore = useQuestionStore();
-const headers: Header[] = [
+const headers= [
   { text: 'Text', value: 'text' },
   { text: 'Type', value: 'type' },
 ];
 
-const questions = ref<Item[]>([]);
+const questions = ref<DisplayQuestion[]>([]);
 onMounted(() => {
   fillTable();
 });
@@ -250,23 +251,13 @@ const fillTable = async () => {
   initialize();
 }
 const initialize = () => {
-  questions.value = questionStore.data.map((question: Item) => {
+  questions.value = questionStore.data.map((question: any) => {
     return {
       id: question.id,
       text: question.questionText,
       type: question.questionType,
     };
   });
-};
-
-const loadQuestion = async (index: number): Promise<void> => {
-  const expandedItem = questions.value[index];
-  if (!expandedItem.questionDetail) {
-    expandedItem.expandLoading = true;
-    await questionStore.getQuestionDetails(expandedItem.id, expandedItem.type);
-    expandedItem.questionDetail = questionStore.questionDetail
-    expandedItem.expandLoading = false;
-  }
 };
 
 const questionTextRules = ref([
@@ -280,6 +271,10 @@ const questionTextRules = ref([
 onMounted(async () => {
   await practiceStore.getPractices();
 });
+
+const handleInput = () => {
+  console.log('Input value changed');
+};
 const submitFormHandler = async () => {
   const isValid = await questionForm.value?.validate();
   let question: CreateQuestion = {

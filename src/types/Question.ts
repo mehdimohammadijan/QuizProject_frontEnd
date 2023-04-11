@@ -32,4 +32,10 @@ export interface SendQuestionFront {
     };
 } 
 
+export interface DisplayQuestion {
+    id:string;
+    text: string;
+    type: string;
+} 
+
 export type CreateQuestion = SendQuestionColumn_Row | SendQuestionFront;
