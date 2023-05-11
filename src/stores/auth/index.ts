@@ -9,6 +9,7 @@ export const useAuthStore = defineStore("authStore", {
   state: () => ({
     user: Cookies.get('user') ? JSON.parse(Cookies.get('user') as string) : null as User | null,
     isLoading: false as boolean,
+    users: [] as Array<User>,
     error: null,
   }),
   getters: {
@@ -20,7 +21,6 @@ export const useAuthStore = defineStore("authStore", {
       this.isLoading = true;
       this.error = null;
       await axios.post("/auth/signup", { firstName, lastName, email, password }).then((response: any) => {
-        console.log(response.data);
         this.isLoading = false;
         sharedState.snackbar.value.message="User is created successfully.";
         sharedState.snackbar.value.color="success";
@@ -53,6 +53,17 @@ export const useAuthStore = defineStore("authStore", {
         sharedState.snackbar.value.active = true;
       });
     
+    },
+    async getUsers(): void {
+      this.isLoading = true;
+      this.error = null;
+      await axios.get("/auth/users").then((response: any) => {
+        this.users = response.data;
+        this.isLoading = false;
+      }).catch((error: any) => {
+        this.isLoading = false;
+        this.error = error;
+      });
     },
     signOut(): void{
       Cookies.remove('token');

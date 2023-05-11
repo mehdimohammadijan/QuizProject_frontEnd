@@ -79,7 +79,6 @@ const submitFormHandler = async () => {
   if (isValid.valid) {
     const practice = {title: title.value, description: description.value};
     await practiceStore.createPractice(practice);
-    console.log(practiceStore.error)
     if(!practiceStore.error){
       snackbar.value.text = 'Successfully created!'
       snackbar.value.color = 'success'

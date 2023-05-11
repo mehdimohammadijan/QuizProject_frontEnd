@@ -32,7 +32,6 @@ export const useQuestionStore = defineStore("QuestionStore", {
         this.isLoading = false;
         this.error = null;
         this.questionDetail = JSON.parse(response.data);
-        console.log(response.data);
       } catch (error: any) {
         this.isLoading = false;
         this.error = error;
@@ -40,13 +39,30 @@ export const useQuestionStore = defineStore("QuestionStore", {
     },
 
     async createQuestion(sendQuestion : CreateQuestion): Promise<void> {
-      console.log(sendQuestion)
       this.isLoading = true;
       this.error = null;
       try {
         const response = await axios.post("/questions", sendQuestion);
         this.isLoading = false;
         sharedState.snackbar.value.message="Question created successfully.";
+        sharedState.snackbar.value.color="success";
+        sharedState.snackbar.value.active = true;
+      } catch (error: any) {
+        this.isLoading = false;
+        this.error = error;
+        sharedState.snackbar.value.message="OOPS something went wrong!";
+        sharedState.snackbar.value.color="orange-darken-2";
+        sharedState.snackbar.value.active = true;
+      }
+    },
+
+    async updateQuestions(questionList): Promise<void> {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.post("/questions/update", questionList);
+        this.isLoading = false;
+        sharedState.snackbar.value.message="Question list is updated successfully.";
         sharedState.snackbar.value.color="success";
         sharedState.snackbar.value.active = true;
       } catch (error: any) {

@@ -46,8 +46,7 @@
                           type="text"
                           placeholder="Question"
                           v-model="item.value.questionText"
-                          clearable
-                          @input="handleCLick"
+                          @input="handleCLick(item.raw)"
                         />
                       </v-col>
                       <v-col>
@@ -57,6 +56,7 @@
                           label="Type"
                           :items="['Column', 'Front', 'Row']"
                           v-model="item.value.questionType"
+                          @update:model-value="handleCLick(item.raw)"
                         ></v-autocomplete>
                       </v-col>
                       <v-col>
@@ -69,12 +69,17 @@
                           item-value="id"
                           v-model="item.value.practice.title"
                           return-object
+                          @update:model-value="handleCLick(item.raw)"
                         ></v-autocomplete>
                       </v-col>
                     </v-row>
                     <v-row v-if="item.value.questionType === 'Column'">
                       <v-col>
-                        <v-btn @click="addToColumnList(item.value.id)"
+                        <v-btn
+                          @click="
+                            addToColumnList(item.value.id),
+                              handleCLick(item.raw)
+                          "
                           >add</v-btn
                         >
                         <draggable
@@ -83,6 +88,7 @@
                           class="list-group"
                           handle=".handle"
                           item-key="id"
+                          @update="handleCLick(item.raw)"
                         >
                           <template #item="{ element, index }">
                             <li class="list-group-item">
@@ -98,6 +104,7 @@
                                     type="text"
                                     class="form-control"
                                     v-model="element.optionText"
+                                    @input="handleCLick(item.raw)"
                                   />
                                 </div>
                                 <div class="col-1 d-flex align-items-center">
@@ -105,7 +112,11 @@
                                     icon="mdi-close"
                                     class="close"
                                     @click="
-                                      removeFromColumnList(index, item.value.id)
+                                      removeFromColumnList(
+                                        index,
+                                        item.value.id
+                                      ),
+                                        handleCLick(item.raw)
                                     "
                                   />
                                 </div>
@@ -119,7 +130,11 @@
                       <v-col>
                         <v-row>
                           <v-col>
-                            <v-btn @click="addToFrontList(item.value.id)"
+                            <v-btn
+                              @click="
+                                addToFrontList(item.value.id),
+                                  handleCLick(item.raw)
+                              "
                               >add</v-btn
                             >
                           </v-col>
@@ -149,6 +164,7 @@
                                         type="text"
                                         class="form-control"
                                         v-model="element.optionText"
+                                        @input="handleCLick(item.raw)"
                                       />
                                     </div>
                                   </div>
@@ -180,6 +196,7 @@
                                         type="text"
                                         class="form-control"
                                         v-model="element.optionAnswer"
+                                        @input="handleCLick(item.raw)"
                                       />
                                     </div>
                                     <div
@@ -192,7 +209,8 @@
                                           removeFromFrontList(
                                             index,
                                             item.value.id
-                                          )
+                                          ),
+                                            handleCLick(item.raw)
                                         "
                                       />
                                     </div>
@@ -206,7 +224,12 @@
                     </v-row>
                     <v-row v-if="item.value.questionType === 'Row'">
                       <v-col>
-                        <v-btn @click="addToRowList(item.value.id)">add</v-btn>
+                        <v-btn
+                          @click="
+                            addToRowList(item.value.id), handleCLick(item.raw)
+                          "
+                          >add</v-btn
+                        >
                         <draggable
                           tag="div"
                           :list="item.value.columnRowOptions"
@@ -228,6 +251,7 @@
                                     type="text"
                                     class="form-control"
                                     v-model="element.optionText"
+                                    @input="handleCLick(item.raw)"
                                   />
                                 </div>
                                 <div class="col-1 d-flex align-items-center">
@@ -235,7 +259,8 @@
                                     icon="mdi-close"
                                     class="close"
                                     @click="
-                                      removeFromRowList(index, item.value.id)
+                                      removeFromRowList(index, item.value.id),
+                                        handleCLick(item.raw)
                                     "
                                   />
                                 </div>
@@ -253,6 +278,10 @@
         </tr>
       </template>
     </v-data-table>
+    <div class="text-right p-2" v-if="edditedQuestions.length > 0">
+      <v-btn color="blue-darken-1 mr-2" @click="cancelSave">Cancel</v-btn>
+      <v-btn color="blue-darken-1" @click="saveList">Save</v-btn>
+    </div>
   </v-card>
 </template>
 <script setup lang="ts">
@@ -263,7 +292,6 @@ import { RecievedQuiz } from "../../types/Practice";
 import { VForm } from "vuetify/lib/components/VForm/index";
 import { useQuestionStore } from "../../stores/question";
 import { VDataTable } from "vuetify/lib/labs/components";
-
 
 const optionId = ref<number>(0);
 const questionForm = ref<VForm | null>(null);
@@ -282,6 +310,7 @@ const edditedQuestions = ref<any>([]);
 onMounted(async () => {
   await fillTable();
 });
+
 const newQuestionId = ref<number>(0);
 const addQuestion = () => {
   const newQuestion = {
@@ -293,25 +322,52 @@ const addQuestion = () => {
     columnRowOptions: [],
   };
   questions.value.push(newQuestion);
-  addToEdditedQuestionList(newQuestion.id, "create", newQuestion);
+  addToEdditedQuestionList("create", newQuestion.id, newQuestion);
 };
-const addToEdditedQuestionList = (id: string, opt: string, question?: any) => {
+const addToEdditedQuestionList = (opt: string, id: string, question?: any) => {
   if (opt === "create") {
     // if it is a new question
-    edditedQuestions.value.push(question);
+    edditedQuestions.value.push({...question, opt});
   } else if (opt === "edit") {
     // if it is an edited question
+    const index = getEdittedQuestionIndex(id);
+    if (index > -1) {
+      edditedQuestions.value[index] =
+        edditedQuestions.value[index].opt === "create"
+          ? { ...question, opt: "create" }
+          : { ...question, opt: "edit" };
+    } else {
+      edditedQuestions.value.push({ ...question, opt });
+    }
   } else {
     if (id !== "") {
-      edditedQuestions.value.push({ id, opt });
+      edditedQuestions.value.push({ id, opt, type: question.questionType });
     }
   }
 };
+const getEdittedQuestionIndex = (qId: string) => {
+  return edditedQuestions.value.findIndex(
+    (question: any) => question.id === qId
+  );
+};
 const removeFromEdittedQuestionList = (qId: string) => {
-  const index = edditedQuestions.value.findIndex((question: any) => question.id === qId);
+  const index = getEdittedQuestionIndex(qId);
   edditedQuestions.value.splice(index, 1);
+};
+const cancelSave = () => {
+  fillTable();
+  edditedQuestions.value = [];
+};
 
-}
+const saveList = async () => {
+  await questionStore.updateQuestions(edditedQuestions.value);
+  if(questionStore.error === null){
+    fillTable();
+    edditedQuestions.value =[]
+  }
+
+};
+
 const fillTable = async () => {
   await questionStore.getQuestions();
   await practiceStore.getPractices();
@@ -336,16 +392,6 @@ const fillTable = async () => {
   });
 };
 
-// const loadQuestion = async (index: number) => {
-//   const expandedItem = questions.value[index];
-//   if (!expandedItem.questionDetail) {
-//     expandedItem.expandLoading = true;
-//     await questionStore.getQuestionDetails(expandedItem.id, expandedItem.type);
-//     expandedItem.questionDetail = questionStore.questionDetail;
-//     expandedItem.expandLoading = false;
-//   }
-// };
-
 const questionTextRules = ref([
   (value: string) => {
     if (value) return true;
@@ -356,16 +402,20 @@ const questionTextRules = ref([
 
 const deleteQuestion = (qId: string) => {
   const index = getQuestionIndex(qId);
-    questions.value.splice(index, 1);
+  const question = questions.value[index];
+  questions.value.splice(index, 1);
   const num = +qId;
   if (!isNaN(num)) {
     removeFromEdittedQuestionList(qId);
-  }else{
-    addToEdditedQuestionList(qId, "delete");
+  } else {
+    const edittedIndex = getEdittedQuestionIndex(qId);
+    if (edittedIndex > -1) edditedQuestions.value.splice(edittedIndex, 1);
+
+    addToEdditedQuestionList("delete", qId, question);
   }
 };
-const handleCLick = () => {
-  console.log("hi");
+const handleCLick = (question: any) => {
+  addToEdditedQuestionList("edit", question.id, question);
 };
 
 const getQuestionIndex = (qId: string): number =>
@@ -378,6 +428,7 @@ const removeFromFrontList = (idx: number, qId: string) => {
 const removeFromColumnList = (idx: number, qId: string) => {
   const index = getQuestionIndex(qId);
   questions.value[index].columnRowOptions.splice(idx, 1);
+  handleCLick;
 };
 const removeFromRowList = (idx: number, qId: string) => {
   const index = getQuestionIndex(qId);

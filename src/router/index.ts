@@ -53,6 +53,13 @@ const routes: Array<RouteRecordRaw> = [
     //   }
     // ]
   },
+  ,
+  {
+    path: '/assignquiz',
+    name: 'AssignQuiz',
+    component: () => import('../components/form/AssignQuiz.vue'),
+    meta : { auth: true}
+  },
   {
     path: '/:catchAll(.*)',
     redirect: { name: 'Signin' }

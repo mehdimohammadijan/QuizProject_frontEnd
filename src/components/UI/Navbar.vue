@@ -43,6 +43,7 @@ const sideBarNav = computed(() => {
       { title: "Create Practice", icon:"mdi-pencil-box-outline", route: "/listpractice" },
       { title: "Add Question", icon:"mdi-help", route: "/addquestion" },
       { title: "Question List", icon:"mdi-help", route: "/listquestion" },
+      { title: "Assign Quiz", icon:"mdi-plus", route: "/assignquiz" },
       { title: "Sign out", icon: "mdi-logout", route: "/signin"}
     ]
   }

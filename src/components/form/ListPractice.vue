@@ -103,7 +103,7 @@
       </template>
     </v-data-table>
     <v-col class="text-right" v-if="showCancelSave">
-      <v-btn color="blue-darken-1 mr-2" @click="cancelSave">Cancel</v-btn>
+      <v-btn color="blue-darken-1" class="mr-2" @click="cancelSave">Cancel</v-btn>
       <v-btn color="blue-darken-1" @click="saveList">Save</v-btn>
     </v-col>
   </div>

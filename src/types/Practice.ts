@@ -19,3 +19,8 @@ export interface RecievedQuiz {
     description: string;
     createAt: Date;
 }
+
+export interface AssignedQuiz {
+    email: string;
+    quiz: SelectedQuiz;
+}

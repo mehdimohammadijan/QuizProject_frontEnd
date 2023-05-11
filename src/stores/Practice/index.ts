@@ -55,5 +55,23 @@ export const usePracticeStore = defineStore("PracticeStore", {
         sharedState.snackbar.value.active = true;
         });
     },
+    async assignQuiz(){
+      this.isLoading = true;
+      this.error = null;
+      
+        // await axios.post("/practices/assignquiz", practices).then((response) => {
+        //   this.isLoading = false;
+        //   sharedState.snackbar.value.message =
+        //     "Quiz list is successfully updated.";
+        //   sharedState.snackbar.value.color = "success";
+        //   sharedState.snackbar.value.active = true;
+        // }).catch((error: any) => {
+        //   this.isLoading = false;
+        // this.error = error;
+        // sharedState.snackbar.value.message = "OOPS something went wrong!";
+        // sharedState.snackbar.value.color = "orange-darken-2";
+        // sharedState.snackbar.value.active = true;
+        // });
+    }
   },
 });
