@@ -21,7 +21,6 @@
                 :rules="questionTextRules"
                 v-model="questionText"
                 clearable
-                @update:model-value="handleInput"
               />
             </v-col>
             <v-col>
@@ -272,9 +271,6 @@ onMounted(async () => {
   await practiceStore.getPractices();
 });
 
-const handleInput = () => {
-  console.log('Input value changed');
-};
 const submitFormHandler = async () => {
   const isValid = await questionForm.value?.validate();
   let question: CreateQuestion = {
@@ -287,7 +283,6 @@ const submitFormHandler = async () => {
     if (isValid.valid) {
       if(questionType.value === 'Column'){
         if(columnList.value.length === 0){
-          console.log('Column type question must has a value!');
           return;
         }
         question = {
@@ -299,7 +294,6 @@ const submitFormHandler = async () => {
     }
       else if(questionType.value === 'Row'){
         if(rowList.value.length === 0){
-          console.log('Row type question must has a value!');
           return;
         }
         question = {
@@ -310,7 +304,6 @@ const submitFormHandler = async () => {
       }
       }else if(questionType.value === 'Front') {
         if(leftList.value.length === 0 || rightList.value.length === 0 || leftList.value.length !== rightList.value.length){
-          console.log('Front type question is invalid!');
           return;
         }
         question = {
@@ -324,9 +317,7 @@ const submitFormHandler = async () => {
       }
       }
       await questionStore.createQuestion(question);
-      if (!questionStore.error) {
-        console.log('successfully added');
-      }
+     
     }
   }
 };

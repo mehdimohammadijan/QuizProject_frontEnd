@@ -436,7 +436,9 @@ const removeFromRowList = (idx: number, qId: string) => {
 };
 const addToFrontList = (qId: string) => {
   const index = getQuestionIndex(qId);
-
+  if(!questions.value.leftOptions){
+    questions.value[index].frontOptions={leftOptions:[], rightOptions:[]};
+  }
   questions.value[index].frontOptions.leftOptions.push({
     id: optionId.value,
     optionText: "",
