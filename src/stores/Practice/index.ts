@@ -1,15 +1,19 @@
 import { defineStore } from "pinia";
 import axios from "../../plugins/axios";
-import { UpdateAssignedQuiz, AssignedUserQuiz, Practice, RecievedQuiz } from "../../types/Practice";
-import { User } from "../../types/User";
+import {
+  UpdateAssignedQuiz,
+  AssignedUserQuiz,
+  Practice,
+  RecievedQuiz,
+} from "../../types/Practice";
 import { sharedState } from "../shared/SharedState";
 export const usePracticeStore = defineStore("PracticeStore", {
   state: () => ({
-    user: null as User | null,
     isLoading: false as boolean,
     error: null,
     data: [] as RecievedQuiz[],
-    assignedQuiz: [] as AssignedUserQuiz[],
+    assignedPractices: [] as AssignedUserQuiz[],
+    singleUserPractices: [] as RecievedQuiz[],
   }),
   actions: {
     async getPractices(): Promise<void> {
@@ -24,6 +28,50 @@ export const usePracticeStore = defineStore("PracticeStore", {
         this.error = error;
       }
     },
+    async getPracticesWithQuestions(): Promise<void> {
+      this.isLoading = true;
+      try {
+        const response = await axios.get<RecievedQuiz[]>("/practices");
+        this.isLoading = false;
+        this.error = null;
+        this.data = response.data;
+      } catch (error: any) {
+        this.isLoading = false;
+        this.error = error;
+      }
+    },
+
+    async getSingleUserPractices(): Promise<void> {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "user-practice/getsingleuserpractices"
+        );
+        this.isLoading = false;
+        this.error = null;
+        this.singleUserPractices =
+          response.data.length > 0
+            ? response.data[0].practices.map((p) => p.practice)
+            : [];
+      } catch (error: any) {
+        this.isLoading = false;
+        this.error = error;
+      }
+    },
+
+    async getSingleUserPractice(qId: string): Promise<void> {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/user-practice/${qId}`);
+        this.isLoading = false;
+        this.error = null;
+        this.data = response.data;
+      } catch (error: any) {
+        this.isLoading = false;
+        this.error = error;
+      }
+    },
+
     async createPractice(practice: Practice): Promise<void> {
       const { title, description } = practice;
       this.isLoading = true;
@@ -62,7 +110,6 @@ export const usePracticeStore = defineStore("PracticeStore", {
     async assignQuiz(assignedQuiz: UpdateAssignedQuiz[]) {
       this.isLoading = true;
       this.error = null;
-      console.log(assignedQuiz)
       await axios
         .post("/user-practice/assignPractice", assignedQuiz)
         .then(() => {
@@ -79,17 +126,19 @@ export const usePracticeStore = defineStore("PracticeStore", {
           sharedState.snackbar.value.active = true;
         });
     },
-    async getUserPractices(){
+    async getUserPractices() {
       this.isLoading = true;
       this.error = null;
-        await axios.get("/user-practice").then((response) => {
+      await axios
+        .get("/user-practice")
+        .then((response) => {
           this.isLoading = false;
-          this.assignedQuiz = response.data;
-        }).catch((error: any) => {
+          this.assignedPractices = response.data;
+        })
+        .catch((error: any) => {
           this.isLoading = false;
-        this.error = error;
-
+          this.error = error;
         });
-    }
+    },
   },
 });

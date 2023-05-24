@@ -28,7 +28,7 @@
                 class="px-2 mx-2 mt-1"
                 density="compact"
                 label="Quiz"
-                :items="practiceStore.data.map((practice: RecievedQuiz) => ({id: practice.id, title: practice.title}))"
+                :items="practices"
                 item-title="title"
                 item-value="id"
                 return-object
@@ -108,12 +108,18 @@ const headers: DataTableHeader[] = [
   { title: "Quiz", key: "quiz" },
   { title: "Actions", key: "actions", sortable: false },
 ];
-
+const practices = ref<{id: string, title: string}[]>([])
 onMounted(async () => {
   await practiceStore.getPractices();
   await authStore.getUsers();
+  practices.value = practiceStore.data.map((practice: RecievedQuiz) => ({
+  id: practice.id,
+  title: practice.title,
+}))
   initializeGrid();
 });
+
+
 
 const handleCancelClick = () => {
   selectedQuiz.value = undefined;
@@ -149,7 +155,7 @@ const handleAddClick = () => {
 const initializeGrid = async () => {
   listUserQuiz.value = [];
   await practiceStore.getUserPractices();
-  for (const item of practiceStore.assignedQuiz) {
+  for (const item of practiceStore.assignedPractices) {
     item.practices.forEach((practice) => {
       listUserQuiz.value.push({
         id: item.id,
@@ -167,12 +173,14 @@ const handleDeleteUserQuiz = (userQuiz: AssignedQuiz) => {
       item.email === userQuiz.email && item.quizId === userQuiz.quizId
   );
   const updateIndex = updateListUserQuiz.value.findIndex(
-    (item) => item.email === userQuiz.email && item.quizId === userQuiz.quizId && item.opt === 'new'
+    (item) =>
+      item.email === userQuiz.email &&
+      item.quizId === userQuiz.quizId &&
+      item.opt === "new"
   );
-  if(updateIndex > -1){
+  if (updateIndex > -1) {
     updateListUserQuiz.value.splice(updateIndex, 1);
-  }
-  else {
+  } else {
     updateListUserQuiz.value.push({ ...userQuiz, opt: "delete" });
   }
   if (index > -1) {

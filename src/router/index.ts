@@ -63,7 +63,19 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/:catchAll(.*)',
     redirect: { name: 'Signin' }
-  }
+  },
+  {
+    path: '/takepractice',
+    name: 'TakePractice',
+    component: () => import('../components/form/TakePractice.vue'),
+    meta : { auth: true}
+  },
+  {
+    path: '/attemptpractice/:quizId',
+    name: 'AttemptPractice',
+    component: () => import('../components/form/AttemptPractice.vue'),
+    meta : { auth: true}
+  },
 ];
 
 const router = createRouter({

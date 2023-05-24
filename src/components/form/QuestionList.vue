@@ -36,7 +36,7 @@
             <div style="padding: 15px">
               <v-card class="elevation-12 mx-auto mt-10" max-width="900">
                 <v-card-text>
-                  <v-form class="ml--5" ref="questionForm">
+                  <v-form class="ml--5">
                     <v-row no-gutters>
                       <v-col cols="9">
                         <v-text-field
@@ -67,7 +67,7 @@
                           :items="practiceStore.data.map((practice: RecievedQuiz) => ({id: practice.id, title: practice.title}))"
                           item-title="title"
                           item-value="id"
-                          v-model="item.value.practice.title"
+                          v-model="item.value.practice"
                           return-object
                           @update:model-value="handleCLick(item.raw)"
                         ></v-autocomplete>
@@ -147,6 +147,7 @@
                               class="list-group"
                               handle=".handle"
                               item-key="id"
+                              @update="handleCLick(item.raw)"
                             >
                               <template #item="{ element, index }">
                                 <li class="list-group-item">
@@ -236,6 +237,7 @@
                           class="list"
                           handle=".handle"
                           item-key="id"
+                          @update="handleCLick(item.raw)"
                         >
                           <template #item="{ element, index }">
                             <div class="item">
@@ -294,7 +296,6 @@ import { useQuestionStore } from "../../stores/question";
 import { VDataTable } from "vuetify/lib/labs/components";
 
 const optionId = ref<number>(0);
-const questionForm = ref<VForm | null>(null);
 const practiceStore = usePracticeStore();
 const questionStore = useQuestionStore();
 const expandedRows = ref([]);
@@ -415,6 +416,7 @@ const deleteQuestion = (qId: string) => {
   }
 };
 const handleCLick = (question: any) => {
+  console.log(question)
   addToEdditedQuestionList("edit", question.id, question);
 };
 
@@ -436,7 +438,7 @@ const removeFromRowList = (idx: number, qId: string) => {
 };
 const addToFrontList = (qId: string) => {
   const index = getQuestionIndex(qId);
-  if(!questions.value.leftOptions){
+  if(!questions.value[index].frontOptions.leftOptions){
     questions.value[index].frontOptions={leftOptions:[], rightOptions:[]};
   }
   questions.value[index].frontOptions.leftOptions.push({
