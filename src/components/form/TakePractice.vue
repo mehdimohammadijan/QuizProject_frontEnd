@@ -1,7 +1,7 @@
 <template>
     <v-card class="elevation-12 mx-auto mt-10" max-width="900">
         <v-toolbar dark color="grey-lighten-1">
-          <v-toolbar-title>Assigned Practices</v-toolbar-title>
+          <v-toolbar-title>Assigned Quizzes</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
           <v-container>
@@ -15,7 +15,7 @@
                   <template v-slot:top>
                     <v-toolbar flat>
                       <v-toolbar-title
-                        >List of Assigned Practices</v-toolbar-title
+                        >List of Assigned Quizzes</v-toolbar-title
                       >
                     </v-toolbar>
                   </template>

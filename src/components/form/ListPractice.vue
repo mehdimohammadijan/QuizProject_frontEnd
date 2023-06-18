@@ -8,13 +8,13 @@
     >
       <template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>List of Practices</v-toolbar-title>
+          <v-toolbar-title>List of Quizzes</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-dialog v-model="dialog" max-width="500px">
             <template v-slot:activator="{ props }">
               <v-btn color="primary" dark class="mb-2" v-bind="props">
-                New Item
+                New Quiz
               </v-btn>
             </template>
             <v-card>
@@ -98,9 +98,6 @@
         </v-icon>
         <v-icon size="small" @click="deleteItem(item.raw)"> mdi-delete </v-icon>
       </template>
-      <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize"> Reset </v-btn>
-      </template>
     </v-data-table>
     <v-col class="text-right" v-if="showCancelSave">
       <v-btn color="blue-darken-1" class="mr-2" @click="cancelSave">Cancel</v-btn>
@@ -120,7 +117,7 @@ const dialogDelete = ref(false);
 
 const headers : DataTableHeader[] = [
   {
-    title: "Practice Title",
+    title: "Quiz Title",
     align: "start",
     sortable: false,
     key: "title",

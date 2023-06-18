@@ -1,14 +1,14 @@
 <template>
   <v-navigation-drawer color="grey-lighten-4" expand-on-hover permanent rail>
-    <v-list>
+    <!-- <v-list>
       <v-list-item
         :prepend-avatar="avatarImage"
         title="Mehdi"
         subtitle="mehdi@gmail.com"
       ></v-list-item>
     </v-list>
-
-    <v-divider> </v-divider>
+-->
+    <v-divider> </v-divider> 
 
     <v-list nav density="compact">
       <v-list-item
@@ -38,15 +38,25 @@ const sideBarNav = computed(() => {
     { title: "Sign up", icon: "mdi-account-plus", route: "/signup" },
   ]
   if (authStore.user) {
-    navBar = [
+    if(authStore.user.userType === "A"){
+      navBar = [
       { title: "Account", icon: "mdi-home", route: "/account" },
-      { title: "Create Practice", icon:"mdi-pencil-box-outline", route: "/listpractice" },
+      { title: "Create Quiz", icon:"mdi-pencil-box-outline", route: "/listpractice" },
       { title: "Add Question", icon:"mdi-help", route: "/addquestion" },
       { title: "Question List", icon:"mdi-help", route: "/listquestion" },
       { title: "Assign Quiz", icon:"mdi-plus", route: "/assignquiz" },
-      { title: "Take Practice", icon: "mdi-pencil-box-multiple-outline", route: "/takepractice"},
+      { title: "Take Quiz", icon: "mdi-pencil-box-multiple-outline", route: "/takepractice"},
       { title: "Sign out", icon: "mdi-logout", route: "/signin"}
     ]
+    }
+    else{
+      navBar = [
+      { title: "Account", icon: "mdi-home", route: "/account" },
+      { title: "Take Quiz", icon: "mdi-pencil-box-multiple-outline", route: "/takepractice"},
+      { title: "Sign out", icon: "mdi-logout", route: "/signin"}
+    ]
+    }
+    
   }
   return navBar;
 });

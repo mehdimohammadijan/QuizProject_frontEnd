@@ -416,7 +416,6 @@ const deleteQuestion = (qId: string) => {
   }
 };
 const handleCLick = (question: any) => {
-  console.log(question)
   addToEdditedQuestionList("edit", question.id, question);
 };
 
