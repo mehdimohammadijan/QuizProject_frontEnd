@@ -1,4 +1,4 @@
-import { Question } from './Question'
+import { Question } from "./Question";
 export interface Practice {
   title: string;
   description: string;
@@ -53,4 +53,14 @@ export interface CurrentPractice {
   id: string;
   title: string;
   questions: Question[];
+}
+export interface SingleUserPractice {
+  createdAt: string;
+  id: string;
+  practice: {
+    createdAt: string;
+    description: string;
+    id: string;
+    title: string;
+  };
 }

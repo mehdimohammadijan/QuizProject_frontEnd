@@ -67,7 +67,7 @@ const filteredQuizzes = computed(() => {
 const router = useRouter();
 
 const startQuiz = (quizId: string) => {
-  const route: RouteLocationNormalized = { path: `/attemptpractice/${quizId}` };
+  const route = { path: `/attemptpractice/${quizId}` };
   router.push(route);
 };
 </script>

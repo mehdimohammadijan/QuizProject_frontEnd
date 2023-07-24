@@ -56,7 +56,8 @@ export const useQuestionStore = defineStore("QuestionStore", {
       }
     },
 
-    async updateQuestions(questionList): Promise<void> {
+    async updateQuestions(questionList: any): Promise<void> {
+      console.log("this is : ", questionList)
       this.isLoading = true;
       this.error = null;
       try {

@@ -54,7 +54,7 @@ export const useAuthStore = defineStore("authStore", {
       });
     
     },
-    async getUsers(): void {
+    async getUsers(): Promise<void> {
       this.isLoading = true;
       this.error = null;
       await axios.get("/auth/users").then((response: any) => {

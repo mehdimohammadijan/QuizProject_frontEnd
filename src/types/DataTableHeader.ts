@@ -1,6 +1,6 @@
 declare type DataTableHeader = {
     key: string;
-    value?: SelectItemKey;
+    value?: string;
     title: string;
     colspan?: number;
     rowspan?: number;

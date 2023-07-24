@@ -2,7 +2,7 @@
   <v-container style="border-color: black" v-if="practiceStore.data">
     <v-row>
       <v-col>
-        <p class="h4">Quiz Name : {{ practiceStore.data.title }}</p>
+        <p class="h4">Quiz Name : {{ currentPractice?.title }}</p>
       </v-col>
     </v-row>
     <v-row justify="center" align="center">
@@ -133,16 +133,16 @@ const next = () => {
 const prev = () => {
   if (hasPrevQuestion.value) {
     currentIndex.value--;
-    currentQuestion.value = currentPractice.value.questions[currentIndex.value];
+    currentQuestion.value = currentPractice.value?.questions[currentIndex.value];
   }
 };
 
 const getSingleUserPractice = async () => {
   await practiceStore.getSingleUserPractice(quizId);
 };
-const handleUpdateQuestion = (payload) => {
-  const index = currentPractice.value.questions.indexOf(q => q.id === payload.id);
-  currentPractice.value.questions[index]=payload;
+const handleUpdateQuestion = (payload: Question) => {
+  const index = currentPractice.value?.questions.findIndex((q: Question) => q.id === payload.id)!;
+  currentPractice.value!.questions[index]=payload;
 }
 </script>
 

@@ -5,7 +5,8 @@ import {
   AssignedUserQuiz,
   Practice,
   RecievedQuiz,
-  CurrentPractice
+  CurrentPractice,
+  SingleUserPractice
 } from "../../types/Practice";
 import { sharedState } from "../shared/SharedState";
 export const usePracticeStore = defineStore("PracticeStore", {
@@ -54,7 +55,7 @@ export const usePracticeStore = defineStore("PracticeStore", {
         this.error = null;
         this.singleUserPractices =
           response.data.length > 0
-            ? response.data[0].practices.map((p) => p.practice)
+            ? response.data[0].practices.map((p: SingleUserPractice) => p.practice)
             : [];
       } catch (error: any) {
         this.isLoading = false;
@@ -69,7 +70,6 @@ export const usePracticeStore = defineStore("PracticeStore", {
         this.isLoading = false;
         this.error = null;
         this.currentPractice = response.data;
-        console.log(response.data)
       } catch (error: any) {
         this.isLoading = false;
         this.error = error;
