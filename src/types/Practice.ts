@@ -1,3 +1,4 @@
+import { Question } from './Question'
 export interface Practice {
   title: string;
   description: string;
@@ -45,4 +46,11 @@ export interface AssignedUserQuiz {
       createdAt: string;
     };
   }[];
+}
+export interface CurrentPractice {
+  createdAt: string;
+  description: string;
+  id: string;
+  title: string;
+  questions: Question[];
 }

@@ -83,6 +83,7 @@
 import { ref, watch } from "vue";
 import draggable from "vuedraggable";
 import shuffleArray from "../../composables/shuffle";
+import { FrontOption } from "../../types/Question";
 const props = defineProps({
   question: {
     type: Object,
@@ -91,13 +92,13 @@ const props = defineProps({
 });
 const localQuestion = ref({ ...props.question });
 const leftOptions = ref(
-  props.question.frontOptions.map((o) => ({
+  props.question.frontOptions.map((o: FrontOption) => ({
     id: o.id,
     optionText: o.optionText,
   }))
 );
 const rightOptions = ref(
-  props.question.frontOptions.map((o) => ({
+  props.question.frontOptions.map((o: FrontOption) => ({
     id: o.id,
     optionAnswer: o.optionAnswer,
     correct: false
@@ -117,12 +118,12 @@ watch(
   (newValue) => {
     localQuestion.value = { ...newValue };
     if (localQuestion.value.questionType === "Front") {
-      leftOptions.value = localQuestion.value.frontOptions.map((o) => ({
+      leftOptions.value = localQuestion.value.frontOptions.map((o: FrontOption) => ({
       id: o.id,
       optionText: o.optionText,
       correct: false
         }));
-        rightOptions.value = localQuestion.value.frontOptions.map((o) => ({
+        rightOptions.value = localQuestion.value.frontOptions.map((o: FrontOption) => ({
       id: o.id,
       optionAnswer: o.optionAnswer,
       correct: false

@@ -101,17 +101,19 @@ import { onBeforeMount, ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { usePracticeStore } from "../../stores/Practice";
 import QuestionCard from "./QuestionCard.vue";
+import { CurrentPractice } from "../../types/Practice";
+import { Question } from "../../types/Question";
 const practiceStore = usePracticeStore();
 const route = useRoute();
 const quizId = route.params.quizId as string;
 const length = ref<number>(0);
-const currentQuestion = ref(null);
+const currentQuestion = ref<Question>();
 const currentIndex = ref(0);
-const currentPractice = ref({});
+const currentPractice = ref<CurrentPractice>();
 onBeforeMount(async () => {
   await getSingleUserPractice();
-  currentPractice.value = practiceStore.data;
-  length.value = currentPractice.value.questions.length;
+  currentPractice.value = practiceStore.currentPractice;
+  length.value = currentPractice.value?.questions.length;
   currentQuestion.value = currentPractice.value.questions[currentIndex.value];
 });
 
@@ -125,7 +127,7 @@ const hasPrevQuestion = computed(() => {
 const next = () => {
   if (hasMoreQuestion.value) {
     currentIndex.value++;
-    currentQuestion.value = currentPractice.value.questions[currentIndex.value];
+    currentQuestion.value = currentPractice.value?.questions[currentIndex.value];
   }
 };
 const prev = () => {

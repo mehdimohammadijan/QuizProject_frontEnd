@@ -5,6 +5,7 @@ import {
   AssignedUserQuiz,
   Practice,
   RecievedQuiz,
+  CurrentPractice
 } from "../../types/Practice";
 import { sharedState } from "../shared/SharedState";
 export const usePracticeStore = defineStore("PracticeStore", {
@@ -14,6 +15,7 @@ export const usePracticeStore = defineStore("PracticeStore", {
     data: [] as RecievedQuiz[],
     assignedPractices: [] as AssignedUserQuiz[],
     singleUserPractices: [] as RecievedQuiz[],
+    currentPractice: {} as CurrentPractice
   }),
   actions: {
     async getPractices(): Promise<void> {
@@ -35,6 +37,7 @@ export const usePracticeStore = defineStore("PracticeStore", {
         this.isLoading = false;
         this.error = null;
         this.data = response.data;
+        
       } catch (error: any) {
         this.isLoading = false;
         this.error = error;
@@ -65,7 +68,8 @@ export const usePracticeStore = defineStore("PracticeStore", {
         const response = await axios.get(`/user-practice/${qId}`);
         this.isLoading = false;
         this.error = null;
-        this.data = response.data;
+        this.currentPractice = response.data;
+        console.log(response.data)
       } catch (error: any) {
         this.isLoading = false;
         this.error = error;

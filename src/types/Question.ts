@@ -38,4 +38,25 @@ export interface DisplayQuestion {
     type: string;
 } 
 
+export interface ColumnRowOption {
+    id: string;
+    optionPosition: number;
+    optionText: string;
+}
+
+export interface FrontOption {
+    id: string;
+    optionText: string;
+    optionAnswer: string;
+}
+export interface Question {
+    columnRowOptions: ColumnRowOption[];
+    frontOptions: FrontOption[];
+    id: string;
+    questionText: string;
+    questionType: string;
+
+}
+
+
 export type CreateQuestion = SendQuestionColumn_Row | SendQuestionFront;
